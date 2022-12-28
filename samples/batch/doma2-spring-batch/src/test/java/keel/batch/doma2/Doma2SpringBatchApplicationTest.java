@@ -1,19 +1,22 @@
 package keel.batch.doma2;
 
+import static org.assertj.core.api.Assertions.*;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-@SpringBootTest(classes = {Doma2SpringBatchApplication.class, Doma2SpringBatchApplicationTest.BatchTestConfig.class})
+@SpringBootTest
 @TestPropertySource("classpath:application-test.properties")
 public class Doma2SpringBatchApplicationTest {
 
@@ -34,12 +37,16 @@ public class Doma2SpringBatchApplicationTest {
                 .isEqualTo(11);
     }
 
-    @Configuration
+    @TestConfiguration
     static class BatchTestConfig {
 
         @Bean
-        JobLauncherTestUtils jobLauncherTestUtils() {
-            return new JobLauncherTestUtils();
+        JobLauncherTestUtils jobLauncherTestUtils(JobLauncher jobLauncher, Job job, JobRepository jobRepository) {
+            JobLauncherTestUtils jobLauncherTestUtils = new JobLauncherTestUtils();
+            jobLauncherTestUtils.setJobLauncher(jobLauncher);
+            jobLauncherTestUtils.setJob(job);
+            jobLauncherTestUtils.setJobRepository(jobRepository);
+            return jobLauncherTestUtils;
         }
     }
 }
